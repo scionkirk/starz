@@ -2,7 +2,7 @@ var names = require('./starname.json');
 var _ = require('underscore');
 var starnames = [];
 var slotNum = 10;
-var starTypes = ['Blue','White','Yellow','Orange','Red','Neutron','Black Hole'];
+var starTypes = ['Red','Orange','Yellow','Blue','White','Neutron','Black Hole'];
 var starAges = ['Base','Young','Mature','Ancient'];
 var ageStarBonus = {    'Base':     [30,40,50,40,30, 0, 0],
                         'Young':    [10,20, 0, 0, 0, 0, 0],
@@ -35,6 +35,7 @@ var planetSizeOdds = { 'Blue' : [  0,  0,  0,  0,  0,  0,  0,  0],
 
 var environments = [         'Terran','Ocean','Swamp','Toxic','Inferno','Radiated','Barren','Tundra','Desert','Gaian'];
 var envs = {  'Planetoid' :	[  0,       0,      0,      0,      0,        10,         20,     0,        0,      -20],
+                  'Asteroid Field' :	[  -100,  -100,  -100,  -100,  -100, -40, 0,  -50,  -100,-100],
                   'Small' :	[  0,  0,  0,  0,  0, 10, 10,  0,  0,-10],
                   'Medium':	[ 10, 10,  5,  0,  0,  0,  0,  5,	 5,  0],
                   'Large' :	[  0,  0,  0, 10, 10,  0,  0,  0,  0,-10],
@@ -137,7 +138,9 @@ getTypeRange = function(age) {
 }
  
 arrayMerge = function(a1, a2) {
-    newA = []
+    newA = [];
+	console.log(a1);
+	console.log(a2);
     for (x = 0;x <a1.length;x++) {
         newA[x] = a1[x] + a2[x];
     }
@@ -180,7 +183,8 @@ pickOne = function(probabilities) {
 
 
 getEasyPlanets = function(starType, density) {
-    baseStats = planetDensity[density];
+    console.log(starType + " : " + density);
+	baseStats = planetDensity[density];
     starStats = planetSizeOdds[starType];
     planets = {};
     stats = arrayMerge(starStats,baseStats);
@@ -195,11 +199,14 @@ getEasyPlanets = function(starType, density) {
         rt = 0;
         if (thisOne > 0){
             thisSize =  PlanetSizes[thisOne];
-            if (thisOne < 6) {
+            
+			/* eliminate Asteroid Fields and Gas Giants from getting environments */
+			if (thisOne > 1 && thisOne < 7) {
                 sizeProb = envs[thisSize];
                 slotProb = envs[key];
                 console.log(starType);
                 starProb = envs[starType];
+    console.log(thisSize + " : " + key + " : " + starType);
                 envProb = arrayMerge(sizeProb,slotProb);
                 envProb = arrayMerge(envProb,starProb);
                 thisType = thisSize + " " + environments[pickOne(envProb)];
